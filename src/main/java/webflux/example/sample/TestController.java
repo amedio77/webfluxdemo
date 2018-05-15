@@ -1,4 +1,4 @@
-package webflux.example;
+package webflux.example.sample;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    @RequestMapping("/hello")
+    @RequestMapping("/hello2")
     public Publisher<String> hello(String name){
         return new Publisher<String>() {
 

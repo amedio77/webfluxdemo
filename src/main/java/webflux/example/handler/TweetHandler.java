@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -27,19 +28,20 @@ public class TweetHandler {
 
     public Mono<ServerResponse> listAll(ServerRequest request) {
 
-        this.repository.findAll().doOnNext(System.out::println).subscribe(s-> System.out.println(s.getText()));
+        //this.repository.findAll().doOnNext(System.out::println).subscribe(s-> System.out.println(s.getText()));
 
         Flux<Tweet> tweet = this.repository.findAll();
 
         return ServerResponse.ok().contentType(APPLICATION_JSON).body(tweet, Tweet.class);
     }
 
-
     public Mono<ServerResponse> getTweet(ServerRequest request) {
         String tweetId = request.pathVariable("id");
-        log.debug(tweetId);
+
         Mono<ServerResponse> notFound = ServerResponse.notFound().build();
+
         Mono<Tweet> personMono = this.repository.findById(tweetId);
+
         return personMono
                 .flatMap(person -> ServerResponse.ok().contentType(APPLICATION_JSON).body(fromObject(person)))
                 .switchIfEmpty(notFound);
@@ -47,8 +49,11 @@ public class TweetHandler {
 
 
     public Mono<ServerResponse> createPerson(ServerRequest request) {
+
         Mono<Tweet> tweet = request.bodyToMono(Tweet.class);
+
         Mono<Tweet> tweetMono = tweet.flatMap(this.repository::save);
+
         return ServerResponse.status(HttpStatus.CREATED).body(tweetMono, Tweet.class);
     }
 
